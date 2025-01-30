@@ -28,11 +28,11 @@ void sort_insert(float tab[], int top, float val) {
 }
 
 int nb_columns() {
-    return 32;
+    return 129;
 }
 
 int nb_lines() {
-    return 16;
+    return 65;
 }
 
 void grid_init(char grid[], char pixel) {
@@ -75,18 +75,40 @@ void plot_vline(char grid[], int x, float fy0, float fy1, char pixel) {
 }
 
 void plot_poly_sweep(char grid[], struct point p[], int tab_length, int x, char pixel) {
-    printf("sweep: %d", x);
+    float vlines[tab_length*4];
+    int top = 0;
     int j = tab_length - 1;
     for (int i = 0; i < tab_length; i++) {
-        // printf(" (%d, %d)", j, i);
-        if (((p[i].x <= x) & (x <= p[j].x)) | ((p[j].x <= x) & (x <= p[i].x))) {
-            printf(" %f", p[i].y + (x - p[i].x) * (p[j].y - p[i].y) / (p[j].x - p[i].x));
+        if (p[i].x == x) {
+            if(p[j].x == x) {
+                if (p[i].y < p[j].y) {
+                    plot_vline(grid, x, p[i].y, p[j].y, pixel);
+                }else {
+                    plot_vline(grid, x, p[j].y, p[i].y, pixel);
+                }
+            } else {
+                plot_vline(grid, x, p[i].y, p[i].y, pixel);
+            }
+        } {
+            if(p[i].x <= p[j].x) {
+                if((p[i].x <= x) & (x < p[j].x)) {
+                    sort_insert(vlines, top, p[i].y + (x - p[i].x) * (p[j].y - p[i].y) / (p[j].x - p[i].x));
+                    top += 1;
+                }
+            }
+            if (p[i].x >= p[j].x ){
+                if((p[i].x > x) & (x >= p[j].x)) {
+                    sort_insert(vlines, top, p[i].y + (x - p[i].x) * (p[j].y - p[i].y) / (p[j].x - p[i].x));
+                    top += 1;
+                }
+            }
         }
         j = i;
     }
-    // for(int i = axis; i < (nb_columns()*nb_lines()); (i = i +nb_columns())) {
-    //     printf("%c", grid[i]);
-    // }
+
+    for (int i = 0; i < top; i+=2) {
+        plot_vline(grid, x, vlines[i], vlines[i+1], pixel);
+    }
     printf("\n");
 }
 
@@ -96,14 +118,35 @@ void plot_poly(char grid[], struct point p[], int tab_length, char pixel) {
     }
 }
 
+void plot_triangle(char grid[], struct point p1, struct point p2, struct point p3, char pixel) {
+    struct point points_triangle[3] = {p1, p2, p3};
+    plot_poly(grid, points_triangle, 3, '-');
+}
+
+
+struct point line_middle(struct point p1, struct point p2) {
+    struct point middle = {(p1.x+p2.x)/2, (p1.y+p2.y)/2};
+    return middle;
+}
+
+void sierpinski(char grid[], struct point p1, struct point p2, struct point p3, int n, char pixel){
+    if (n == 1) {
+        plot_triangle(grid, p1, p2, p3, pixel);
+    }else {
+        sierpinski(grid, p1, line_middle(p1, p2), line_middle(p1, p3), n-1, pixel);
+        sierpinski(grid, p2, line_middle(p2, p1), line_middle(p2, p3), n-1, pixel);
+        sierpinski(grid, p3, line_middle(p3, p1), line_middle(p3, p2), n-1, pixel);
+    }
+}
+
 int main(int argc, char** argv){
     char grid[nb_columns() * nb_lines()];
     
     grid_init(grid, ' ');
-    plot_point(grid, 3, 1, ' ');
-    int tab_length = 6;
-    struct point p[] = {{ 2, 13 }, { 10, 13 }, { 30, 7 }, { 10, 1 }, { 2, 1 }, { 18, 7 }};
-    plot_poly(grid, p, tab_length, '*');
-    // grid_display(grid);
+    struct point p1 = {0, 0};
+    struct point p2 = {64, 64};
+    struct point p3 = {128, 0};
+    sierpinski(grid, p1, p2, p3, 6, '-');
+    grid_display(grid);
     return EXIT_SUCCESS;
 }
