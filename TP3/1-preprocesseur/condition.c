@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef N
-/* si N n'est pas defini. On le definit et on lui donne la valeur 12 */
+
+
+#ifdef M
+#define N M
+#else
 #define N 12
 #endif
+
 
 #if (N > 10)
 

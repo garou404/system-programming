@@ -5,7 +5,7 @@
 
 int main()
 { int grandN=15;
-  int N;
-  N = 7;
+  int n;
+  n = 7;
   return 0;
 }
