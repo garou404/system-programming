@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include "message.h"
 
 
 int main(){
-    puts("Hello World !");
+    puts(message[whatIsMyLanguage()]);
     return 0;
 }

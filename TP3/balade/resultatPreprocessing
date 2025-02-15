@@ -815,6 +815,6 @@ extern int __overflow (FILE *, int);
 
 # 4 "main.c"
 int main(){
-    puts("42");
-    return 0;
+    puts("Bonjour tout le monde!");
+        return 0;
 }
