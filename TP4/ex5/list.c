@@ -26,15 +26,15 @@ struct node* create(const char *input){
 }
 
 void display(struct node *my_node){
-    // printf("\nnew node: %p", my_node);
-    // printf("\n&new node: %p\n", &my_node);
-    // printf("\nnext node: %p", my_node->next);
-    // printf("\n&next node: %p\n", &my_node->next);
-    printf("\"%s\" ",my_node->element);
-    if(my_node->next != NULL){
-        display(my_node->next);
-    }else{
-        printf("\n");
+    if(my_node != NULL) {
+        printf("\"%s\" ",my_node->element);
+        if(my_node->next != NULL){
+            display(my_node->next);
+        }else{
+            printf("\n");
+        }
+    }else {
+        printf("The list is empty\n");
     }
 }
 
@@ -58,7 +58,6 @@ struct node* insert(struct node* list, char* str) {
                 next_node = cur_node->next;
             }
         }
-
         new_node->next = NULL;
         cur_node->next = new_node;
         return list;
@@ -66,39 +65,53 @@ struct node* insert(struct node* list, char* str) {
 }
 
 
-// struct node*rec_insert() {
+struct node*rec_insert(struct node*list, char* str) {
+    struct node *new_node = create(str);
+    if (list == NULL){
+        new_node->next = NULL;
+        list = new_node;
+        return new_node;
+    } else if(strcmp(list->element, new_node->element) > 0){
+        new_node->next = list;
+        return new_node;
+    } else {
+        list->next = rec_insert(list->next, str);
+        
+        return list;
+    }
+}
 
-// }
-
-// void destroy(char* str) {
-//     while
-// }
+struct node* destroy(struct node*list, char* str) {
+    struct node* cur_node = list;
+    if (list == NULL) {
+        return NULL;
+    }
+    while(cur_node->next != NULL){
+        if(strcmp(cur_node->next->element, str) == 0) {
+            break;
+        }
+        cur_node = cur_node->next;
+    }
+    struct node*node_to_delete = cur_node->next;
+    cur_node->next = cur_node->next->next;
+    free(node_to_delete);
+    return list;
+}
 
 int main(int argc, char** argv) {
-    // struct node*n1 = create("n1");
-    // struct node*n2 = create("n2");
-    // n1->next = n2;
-    // printf("----------------------------------------------------\n");
-    // printf("\nnew node: %p", n1);
-    // printf("\n&new node: %p\n", &n1);
-    // printf("\nnext node: %p", n1->next);
-    // printf("\n&next node: %p\n\n", &n1->next);
-
-    // printf("\nnew node: %p", n2);
-    // printf("\n&new node: %p\n", &n2);
-    // printf("\nnext node: %p", n2->next);
-    // printf("\n&next node: %p\n\n", &n2->next);
-    // printf("----------------------------------------------------\n");
-
-    // display(n1);
-    // (*n1).next = n2; same than n1->next = n2;
     struct node*linked_list = NULL;
-    linked_list = insert(linked_list, "que");
-    linked_list = insert(linked_list, "la");
-    linked_list = insert(linked_list, "force");
-    linked_list = insert(linked_list, "soit");
-    linked_list = insert(linked_list, "avec");
-    linked_list = insert(linked_list, "toi");
+    linked_list = rec_insert(linked_list, "aaa");
+    linked_list = rec_insert(linked_list, "bbb");
+    linked_list = rec_insert(linked_list, "ddd");
+    linked_list = rec_insert(linked_list, "ccc");
+    linked_list = destroy(linked_list, "ccc");
+    
+    // linked_list = insert(linked_list, "que");
+    // linked_list = insert(linked_list, "la");
+    // linked_list = insert(linked_list, "force");
+    // linked_list = insert(linked_list, "soit");
+    // linked_list = insert(linked_list, "avec");
+    // linked_list = insert(linked_list, "toi");
     display(linked_list);
     return EXIT_SUCCESS;
 }
