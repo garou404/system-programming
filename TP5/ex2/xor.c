@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <errno.h>
 #include <string.h>
-
+#include "xor.h"
 
 
 
@@ -11,10 +11,21 @@
 void encode(uint8_t key, FILE*in, FILE*out) {
     char* read_char = malloc(sizeof(char));
     while(fread(read_char, sizeof(char), 1, in) != 0) {
-        printf("%c", *read_char);
-        
+        fprintf(out, "%c", (*read_char ^ key));
     }
     free(read_char);
+}
+
+void optimized_encode(uint8_t key, FILE*in, FILE*out) {
+    char buffer[256];
+    int fread_res = fread(buffer, sizeof(char), 256, in);
+    while(fread_res != 0){
+        for(int i = 0; i < 256; i++) {
+            buffer[i] = buffer[i] ^ key;
+        }
+        fwrite(buffer, sizeof(char), fread_res, out);
+        fread_res = fread(buffer, sizeof(char), 256, in);
+    }
 }
 
 void print_bits_of_char(const char c) {
@@ -56,20 +67,32 @@ int main(int argc, char** argv) {
     }
     uint8_t key = atoi(argv[1]);
     printf("encode %s with the key %d to %s\n", argv[2], key, argv[3]);
-
-    FILE* in = fopen(argv[2], "r");
-    if (in == NULL) {
-        printf("fopen %s: %s\n", argv[2], strerror(errno));
-        return EXIT_FAILURE;
+    
+    FILE* in;
+    if(strcmp(argv[2], "-") == 0) {
+        in = stdin;
+    }else{
+        in = fopen(argv[2], "r");
+        if (in == NULL) {
+            printf("fopen %s: %s\n", argv[2], strerror(errno));
+            return EXIT_FAILURE;
+        }
     }
 
-    FILE* out = fopen(argv[3], "w");
-    if (out == NULL) {
-        printf("fopen %s: %s\n", argv[3], strerror(errno));
-        return EXIT_FAILURE;
+    
+    FILE* out;
+    if(strcmp(argv[3], "-") == 0) {
+        out = stdout;
+    }else{
+        out = fopen(argv[3], "w");
+        if (out == NULL) {
+            printf("fopen %s: %s\n", argv[3], strerror(errno));
+            return EXIT_FAILURE;
+        }
     }
 
-    encode(key, in, out);
-
+    optimized_encode(key, in, out);
+    fclose(in);
+    fclose(out);
     return EXIT_SUCCESS;
 }
