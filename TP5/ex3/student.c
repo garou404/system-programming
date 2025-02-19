@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
             i++;
             next_char = buffer[i];
         }
-        // printf("student name %s, grade %d\n\n", stdt.name, stdt.rank);
         fwrite(&stdt, sizeof(struct student), 1, out);
     }
     return EXIT_SUCCESS;

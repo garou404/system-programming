@@ -28,18 +28,31 @@ int main(int argc, char** argv) {
     printf("size of struct : %lu\n\n", sizeof(struct student));
     fseek(grade_file, 0, SEEK_SET);
     int elemnt_nb_read = fread(stdts, sizeof(struct student), student_nb, grade_file);
-    
-    
     printf("%d\n", elemnt_nb_read);
-    // printf("%s\n", (stdts+50)->name);
-    // printf("student %s with grade %d\n", (stdts+sizeof(struct student)*0)->name, (stdts+sizeof(struct student)*0)->rank);
-    // printf("student %s with grade %d\n", (stdts+1)->name, (stdts+sizeof(struct student)*1)->rank);
-    // printf("student %s with grade %d\n", (stdts+sizeof(struct student)*3)->name, (stdts+sizeof(struct student)*3)->rank);
 
     for (int i = 0; i < student_nb; i++) {
-    //     // printf("%d\n", (stdts+i*sizeof(struct student))->rank);
-        printf("student %s with grade %d\n", (stdts+i)->name, (stdts+i)->rank);
+        printf("%s with grade %d\n", (stdts+i)->name, (stdts+i)->rank);
     }
+    int cursor = 0;
+    for (cursor; cursor < student_nb; cursor++) {
+        if(strcmp(argv[2], (stdts+cursor)->name) == 0){
+            break;
+        }
+    }
+    if(cursor == student_nb){
+        printf("%s is not in the student list\n", argv[2]);
+        return EXIT_FAILURE;
+    }else{
+        int new_grade = atoi(argv[3]);
+        printf("\n%s old grade: %d, new grade: %d\n", (stdts+cursor)->name, (stdts+cursor)->rank, new_grade);
+        (stdts+cursor)->rank = new_grade;
+    }
+    fseek(grade_file, cursor*sizeof(struct student), SEEK_SET);
+    if(fwrite((stdts+cursor), sizeof(struct student), 1, grade_file) == 0) {
+        printf("fwrite error\n");
+        return EXIT_FAILURE;
+    }
+
     free(stdts);
     return EXIT_SUCCESS;
 }
