@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
 
 #define NB_ELEMENTS 7
 
@@ -31,20 +33,18 @@ int compar_double(const void *m1, const void *m2) {
 
 // (tab_double, NB_ELEMENTS, sizeof(double), compar_double);
 void bubble_sort(void* base, size_t nmemb, size_t size, int (*compar)(const void* c1, const void* c2)) {
-  for (size_t i = 0; i < nmemb; i++) {
-    for (size_t o = 0; o < nmemb-i; o++) {
-      printf("i: %lu - o: %lu\n", i, o);
+  void* temp_val = malloc(size);
+  if (!temp_val) return;
+  for (size_t i = 0; i < nmemb-1; i++) {
+    for (size_t o = 0; o < nmemb-1-i; o++) {
+      if(compar(base+o*size, base+(o+1)*size) > 0) {
+        memcpy(temp_val, (base+o*size), size);
+        memcpy(base+o*size, base+(o+1)*size, size);
+        memcpy(base+(o+1)*size, temp_val, size);
+      }
     }
   }
-}
-
-void test_function(int*tab, size_t nmemb, size_t size){
-  printf("TEST FUNCTION: \n");
-  for (size_t i = 0; i < NB_ELEMENTS; i++)
-  {
-    printf("%d at addr: %p\n", tab[i], &tab[i]);
-  }
-  *(tab+3) = 10;
+  free(temp_val);
 }
 
 
@@ -66,25 +66,21 @@ int main(int argc, char** argv){
   short tab_short[NB_ELEMENTS] = {6, 5, 4, 3, 2, 1, 0};
   double tab_double[NB_ELEMENTS] = {7.1, 6.2, 5.3, 4.4, 3.5, 2.6, 1.7};
 
-  // printf("tab_short avant tri\n");
-  // print_tab_short(tab_short, NB_ELEMENTS);
-  // // TODO : Appelez la fonction qsort
-  // qsort(tab_short, NB_ELEMENTS, sizeof(short), compar_short);
+  printf("tab_short avant tri\n");
+  print_tab_short(tab_short, NB_ELEMENTS);
+  // TODO : Appelez la fonction qsort
+  bubble_sort(tab_short, NB_ELEMENTS, sizeof(short), compar_short);
 
-  // printf("tab_short après tri\n");
-  // print_tab_short(tab_short, NB_ELEMENTS);
+  printf("tab_short après tri\n");
+  print_tab_short(tab_short, NB_ELEMENTS);
 
-  // printf("tab_double avant tri\n");
-  // print_tab_double(tab_double, NB_ELEMENTS);
-  // // TODO : Appelez la fonction qsort
-  // qsort(tab_double, NB_ELEMENTS, sizeof(double), compar_double);
-
-  // printf("tab_double avant tri\n");
-  // print_tab_double(tab_double, NB_ELEMENTS);
-
-  int tab[NB_ELEMENTS] = {1, 2, 3, 4, 5, 6, 7};
+  printf("tab_double avant tri\n");
+  print_tab_double(tab_double, NB_ELEMENTS);
+  // TODO : Appelez la fonction qsort
   bubble_sort(tab_double, NB_ELEMENTS, sizeof(double), compar_double);
 
+  printf("tab_double avant tri\n");
+  print_tab_double(tab_double, NB_ELEMENTS);
 
   return EXIT_SUCCESS;
 }
