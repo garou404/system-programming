@@ -19,7 +19,16 @@ struct command{
   enum command_mode mode;
 };
 
-pid_t* backgrnd_processes;
+struct background_pro{
+  char* cmd;
+  pid_t pid;
+  struct background_pro* next;
+};
+
+struct background_pro* list_processes;
+
+// pid_t* backgrnd_processes;
+int proc_nb = 0;
 
 /* create a command structure from a command line  */
 struct command* extract_command(char* cmdline) {
@@ -71,29 +80,42 @@ void execute_command(struct command* c) {
     if(c->mode == mode_foreground) {
       waitpid(res_fork, NULL, 0);
     }else{
-      printf("(in the background: process %d)\n", getpid());
-      // sleep(1);
+      printf("(in the background: process %d)\n", res_fork);
     }
   }
 
-  pid_t res_wait = waitpid(res_fork, NULL, WNOHANG);
-  if(res_wait > 0) {
-    printf("[%d] Completed\n", res_wait);
-  }else{
-    int i = 0;
-    while(backgrnd_processes[i] != 0) {
-      pid_t pid = waitpid(res_fork, NULL, WNOHANG);
-      if (pid > 0) {
-        printf("[%d] Completed\n", pid);
+  pid_t cur_res_wait = waitpid(res_fork, 0, WNOHANG);
+  // if(res_wait > 0) {
+  //   printf("[%d] Completed\n", res_wait);
+  // }else{
+
+  // }
+  if(list_processes) {  
+    struct background_pro* cur = list_processes;
+    struct background_pro* next = list_processes->next;
+    while(cur != NULL) {
+      pid_t res_wait = waitpid(cur->pid, 0, WNOHANG);
+      if(res_wait > 0) {
+        printf("[%d] Completed\n", res_wait);
+      }else {
+
       }
-      i++;
+    }
+    
+    
+  }else{
+    if(cur_res_wait > 0) {
+      printf("[%d] Completed\n", cur_res_wait);
+    }else{
+      struct background_pro new_pro = {c->cmdline, res_fork, NULL};
+      list_processes = &new_pro;
     }
   }
 }
 
 int main(int argc, char** argv){
-  backgrnd_processes = malloc(sizeof(pid_t)*10);
-  backgrnd_processes[0] = 0;
+  list_processes = malloc(sizeof(struct background_pro));
+  list_processes = NULL;
   do {
     char *cmdline = NULL;
     /* print a prompt, and return a buffer that contains the user command */
@@ -113,6 +135,7 @@ int main(int argc, char** argv){
       free(cmd->argv);
       free(cmd);
       free(cmdline);
+      free(list_processes);
       return EXIT_SUCCESS;
     }
 
@@ -122,6 +145,7 @@ int main(int argc, char** argv){
     free(cmd->argv);
     free(cmd);
     free(cmdline);
+    free(list_processes);
     cmdline = NULL;
   } while(1);
 
