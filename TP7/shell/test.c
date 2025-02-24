@@ -13,7 +13,8 @@ int main(int argc, char** argv) {
     // for (int i = 0; i < 4; i++) {
     //     printf("*(tab+%d) = %d\n", i, *(tab+i));
     // }
-    sleep(5);
-    printf("end of 5 sec\n");
+    int count_to = atoi(argv[1]);
+    sleep(count_to);
+    printf("end of %d sec\n", count_to);
     return EXIT_SUCCESS;
 }
