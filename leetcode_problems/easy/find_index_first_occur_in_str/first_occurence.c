@@ -79,19 +79,93 @@ int strStr2(char* haystack, char* needle) { //best solution I proposed
     return -1;
 }
 
+int kpm_algo(char* haystack, char* needle) {// Knuth Maurice Pratt
+    // LPS computation
+    int needle_len = 0;
+    while(needle[needle_len] != '\0') { // O(M)
+        needle_len++;
+    }
+    int*lps = malloc(sizeof(int)*needle_len);
+    lps[0] = 0;
+    int len = 0;
+    for (int i = 1; i < needle_len; i++) { // O(M)
+        if(needle[len] == needle[i]){
+            len++;
+            lps[i] = len;
+        }else{
+            if(len > 0) {
+                len = lps[len-1];
+                i--;
+            }else{
+                len = 0;
+                lps[i] = len;
+            }
+        }
+    }
+    for (int i = 0; i < needle_len; i++)
+    {
+        printf("lps[%d] = %d\n", i, lps[i]);
+    }
+    
+    int i = 0;
+    int j = 0;
+    while(haystack[i] != '\0') { // O(N)
+        if(needle[j] == '\0'){
+            return i - needle_len;
+        }
+        if(haystack[i] != needle[j]){
+            if(j > 0) {
+                j = lps[j-1];
+            }else{
+                i++;
+            }
+        }else{
+            j++;
+            i++;
+        }
+    }
+    if(needle[j] == '\0') {
+        return i-j;
+    }else{
+        return -1;
+    }
+}
+
+int assert_int_equal(int a, int b) {
+    if(a == b) {
+        printf("true\n");
+        return 1;
+    }else{
+        printf("false\n");
+        return -1;
+    }
+}
+
 
 int main(int argc, char** argv) {
 
-    char* haystack = "ababababac";
-    char* needle = "ababac";
-    printf("strStr(haystack, needle) = %d\n", strStr(haystack, needle));
+    // char* haystack = "ababababac";
+    // char* needle = "ababac";
+    // printf("strStr(haystack, needle) = %d\n", kpm_algo(haystack, needle));
+    // assert_int_equal(4, kpm_algo(haystack, needle));
 
-    char* haystack2 = "hello";
-    char* needle2 = "ll";
-    printf("strStr(haystack, needle) = %d\n", strStr(haystack2, needle2));
+    // char* haystack2 = "hello";
+    // char* needle2 = "ll";
+    // printf("strStr(haystack, needle) = %d\n", kpm_algo(haystack2, needle2));
+    // assert_int_equal(2, kpm_algo(haystack2, needle2));
 
-    char* haystack3 = "a";
-    char* needle3 = "a";
-    printf("strStr(haystack, needle) = %d\n", strStr(haystack3, needle3));
+    // char* haystack3 = "a";
+    // char* needle3 = "a";
+    // printf("strStr(haystack, needle) = %d\n", kpm_algo(haystack3, needle3));
+    // assert_int_equal(0, kpm_algo(haystack3, needle3));
+
+    // char* haystack4 = "leetcode";
+    // char* needle4 = "leeto";
+    // printf("strStr(haystack, needle) = %d\n", kpm_algo(haystack4, needle4));
+    // assert_int_equal(0, kpm_algo(haystack4, needle4));
+    assert_int_equal(-1, kpm_algo("adcadcaddcadde", "adcadde"));
+
     return EXIT_SUCCESS;
 }
+
+
