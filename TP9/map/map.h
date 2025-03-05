@@ -1,10 +1,17 @@
 #ifndef MAP_H
 #define MAP_H
 
+struct couple{
+    int key;
+    void* value;
+};
 /* a hashmap.
  * the exact content of the structure may depend on the implementation
  */
-struct map;
+struct map {
+    struct couple* values;
+    int nb_element;
+};
 
 /* initialize a hashmap */
 struct map* map_init();
