@@ -1,11 +1,17 @@
 #ifndef MAP_TREE_H
 #define MAP_TREE_H
+#define LEFT 0
+#define RIGHT 0
+
+enum color_t { BLACK, RED };
+
 
 struct node {
     int key;
     void* val;
-    struct node* left;
-    struct node* right;
+    enum color_t color;
+    struct node* children[2];
+    struct node* parent;
 };
 
 /* a hashmap.
@@ -13,7 +19,7 @@ struct node {
  */
 struct map {
     struct node* root;
-    int height;
+    // int height;
 };
 
 /* initialize a hashmap */
@@ -29,7 +35,7 @@ void map_put(struct map* map, int key, void* val);
 void* map_get(struct map* map, int key);
 
 /* insert a node n in the tree */
-struct node* insert_node(struct node* tree, struct node* n, int* height);
+void insert_node(struct node* tree, struct node* n, int dir);
 
 /* free nodes recursively of the binary tree */
 void free_node(struct node* node);
