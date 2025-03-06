@@ -37,4 +37,10 @@ void free_node(struct node* node);
 /* print the tree */
 void print_tree(struct map* map);
 
+/* print the nodes recursively */
+void print_node(struct node* node, int length, int additional_space);
+
+/* literaly print space " " */
+void print_space(int n, int additional_space);
+
 #endif /* MAP_TREE_H */

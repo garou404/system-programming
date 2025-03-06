@@ -28,29 +28,30 @@ struct node* insert_node(struct node* tree, struct node* n, int* height) {
     struct node* next = tree;
     int depth = 0;
     do{
+        // printf("depth: %d\n", depth);
         depth++;
         cur = next;
+        // printf("cur key %d n->key %d left %p right %p\n", cur->key, n->key, cur->left, cur->right);
         if(cur->key < n->key) {
-            // if(cur->right) {
-            next = cur->right;
-            // }
-            // else{
-            //     cur->right = n;
-            // }
+            if(cur->right) {
+                next = cur->right;
+            }else{
+                cur->right = n;
+                break;
+            }
         }else if(cur->key > n->key) {
-            // if(cur->left) {
-                next = tree->left;
-            // }
-            // else{
-            //     cur->left = n;
-            // }
+            if(cur->left) {
+                next = cur->left;
+            }else{
+                cur->left = n;
+                break;
+            }
         }else{
             cur->val = n->val;
-            if(depth > *height) { *height = depth; }
-            return tree;
+            break;
         }
-    }while(next != NULL);
-    next = n;
+    }while(1);
+    // cur-> = n;
     if(depth > *height) { *height = depth; }
     return tree;
 }
@@ -90,12 +91,41 @@ void* map_get(struct map* map, int key){
 
 void print_tree(struct map* map) {
     if(map->root) {
-        struct node* cur = map->root;
-        
+        print_node(map->root, 0, 0);
+        printf("\n");
     }
 }
 
-void print_node(struct node* node) {
+void print_space(int n, int additional_space) {
+    for (int i = 0; i < 4*n+additional_space; i++) {
+        printf(" ");
+    }
+    
+}
+
+void print_node(struct node* node, int length, int additional_space) {
+    if(node->right == NULL && node->right == NULL) {
+        printf("%d", node->key);
+        printf("\n");
+    }
+    if(node->right){
+        printf("%d r:", node->key);
+        if (node->key > 9){
+            print_node(node->right, length+1, additional_space+1);
+        }else{
+            print_node(node->right, length+1, additional_space);
+        }
+    }
+    if(node->left){
+        print_space(length, additional_space);
+        printf("%d l:", node->key);
+        if (node->key > 9){
+            print_node(node->left, length+1, additional_space+1);
+        }else{
+            print_node(node->left, length+1, additional_space);
+        }
+        return;
+    }
     
 }
 
