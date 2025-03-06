@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-#include "map.h"
+#include "map_tree.h"
 
 #define N_ITER 10
 #define N_PRODUCTS 10
@@ -52,3 +52,4 @@ int main(int argc, char**argv) {
 
   return EXIT_SUCCESS;
 }
+
