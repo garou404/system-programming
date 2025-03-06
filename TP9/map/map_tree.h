@@ -35,7 +35,7 @@ void map_put(struct map* map, int key, void* val);
 void* map_get(struct map* map, int key);
 
 /* insert a node n in the tree */
-void insert_node(struct node* tree, struct node* n, int dir);
+void insert_node(struct map* rb_tree, struct node* p, struct node* n, int dir);
 
 /* free nodes recursively of the binary tree */
 void free_node(struct node* node);
@@ -48,5 +48,8 @@ void print_node(struct node* node, int length, int additional_space);
 
 /* literaly print space " " */
 void print_space(int n, int additional_space);
+
+/* give if node is left or right of its parent node */
+int child_dir(struct node*p);
 
 #endif /* MAP_TREE_H */
