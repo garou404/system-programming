@@ -7,8 +7,10 @@
 int main(int argc, char** argv) {
     struct map* map = map_init();
     map_put(map, 5, NULL);
-    printf("key of root %d\n", map->root->key);
-    // map_put(map, 2, NULL);
+    // printf("key of root %d\n", map->root->key);
+    print_tree(map);
+    map_put(map, 2, NULL);
+    print_tree(map);
 
     // print_tree(map);
     map_free(map);

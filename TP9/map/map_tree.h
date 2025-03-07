@@ -52,4 +52,9 @@ void print_space(int n, int additional_space);
 /* give if node is left or right of its parent node */
 int child_dir(struct node*p);
 
+/* swap child of g to c instead of p while ensuring that none children is lost */
+struct node* rotate_dir_root(struct map* rb_tree, struct node* p, int dir);
+
+#define rotate_dir(n, dir) rotate_dir_root(rb_tree, n, dir)
+
 #endif /* MAP_TREE_H */
