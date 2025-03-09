@@ -1,7 +1,7 @@
 #ifndef MAP_TREE_H
 #define MAP_TREE_H
 #define LEFT 0
-#define RIGHT 0
+#define RIGHT 1
 
 enum color_t { BLACK, RED };
 
