@@ -165,7 +165,7 @@ void* map_get(struct map* map, int key){
 }
 
 void print_tree(struct map* map) {
-    printf("RED-BLACK TREE:\n");
+    printf("\nRED-BLACK TREE:\n\n");
     if(map->root) {
         print_node(map->root, 0, 0);
         printf("\n");
@@ -179,7 +179,7 @@ void print_space(int n, int additional_space) {
 }
 
 void print_node(struct node* node, int length, int additional_space) {
-    if(node->children[RIGHT] == NULL && node->children[RIGHT] == NULL) {
+    if(node->children[LEFT] == NULL && node->children[RIGHT] == NULL) {
         char* color = "   ";
         if(node->color == RED) color = "red";
         else color = "bla";
@@ -191,7 +191,6 @@ void print_node(struct node* node, int length, int additional_space) {
         if(node->color == RED) color = "red";
         else color = "bla";
         printf("%d-%s r:", node->key, color);
-        // free(color);
         if (node->key > 9){
             print_node(node->children[RIGHT], length+1, additional_space+1);
         }else{
@@ -199,7 +198,9 @@ void print_node(struct node* node, int length, int additional_space) {
         }
     }
     if(node->children[LEFT]){
-        print_space(length, additional_space);
+        if(node->children[RIGHT]){
+            print_space(length, additional_space);
+        }
         char* color = "   ";
         if(node->color == RED) color = "red";
         else color = "bla";

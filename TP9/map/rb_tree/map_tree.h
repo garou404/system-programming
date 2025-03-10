@@ -5,7 +5,7 @@
 
 enum color_t { BLACK, RED };
 
-
+// node of the red black tree
 struct node {
     int key;
     void* val;
@@ -15,7 +15,7 @@ struct node {
 };
 
 /* a hashmap.
- * the exact content of the structure may depend on the implementation
+    implemented using a red black tree
  */
 struct map {
     struct node* root;
