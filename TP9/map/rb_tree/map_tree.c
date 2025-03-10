@@ -12,6 +12,7 @@ void map_free(struct map* map){
     if(map->root) {
         free_node(map->root);
     }
+    free(map);
 }
 
 
@@ -22,7 +23,6 @@ void free_node(struct node* node) {
 }
 
 int child_dir(struct node*p){
-    printf("child dir\n");
     if(p->parent->children[LEFT]){
         if(p->parent->children[LEFT] == p){
             return LEFT;
@@ -61,19 +61,16 @@ void insert_node(struct map* rb_tree, struct node* p, struct node* n, int dir) {
     n->color = RED;
     n->parent = p;
     if (p == NULL){
-        printf("root is NULL\n");
         rb_tree->root = n;
         return;
     }
     p->children[dir] = n;
     do{
         if(p->color == BLACK){
-            printf("case I1\n");
             return; // case I1
         }
         if((g = p->parent) == NULL) { // p is root
             p->color = BLACK;
-            printf("case I4\n");
             return; // case I4
         }
         // p is red and g is not NULL 
@@ -82,14 +79,11 @@ void insert_node(struct map* rb_tree, struct node* p, struct node* n, int dir) {
         if(u == NULL || u->color == BLACK){ // p is red, u is black
             if(n == p->children[1-dir]){ // n is an inner child
                 // case I5
-                printf("case I5\n");
                 rotate_dir(p, dir);
                 n = p;
                 p = g->children[dir];
             }
             // case I6
-            printf("case I6\n");
-            printf("rotate_dir_root\n");
             rotate_dir_root(rb_tree, g, 1-dir);
             
             p->color = BLACK;
@@ -98,7 +92,6 @@ void insert_node(struct map* rb_tree, struct node* p, struct node* n, int dir) {
         }
 
         // case I2: u and p are red
-        printf("case I2\n");
 
         p->color = BLACK;
         u->color = BLACK;
@@ -106,8 +99,6 @@ void insert_node(struct map* rb_tree, struct node* p, struct node* n, int dir) {
         n = g;
         // new iteration if parent of n not NULL
     }while((p = n->parent) != NULL);
-    printf("case I3\n");
-
     // case I3
 }
 
@@ -119,6 +110,7 @@ void find_insertion_node(struct map* rb_tree, struct node* n){
         if(n->key < p->key) { dir = LEFT; }
         else if (p->key < n->key) { dir = RIGHT; }
         else{
+            free(n);
             p->val = n->val;
             return;
         }
@@ -130,11 +122,18 @@ void find_insertion_node(struct map* rb_tree, struct node* n){
                 dir = RIGHT;
             }else{
                 p->val = n->val;
+                free(n);
                 return;
             }
         }
     }
-    printf("insert_node(dir %d)\n", dir);
+    if (p) {
+        if (p->key == n->key) {
+            p->val = n->val;
+            free(n);
+            return;
+        }
+    }
     insert_node(rb_tree, p, n, dir);
 }
 
