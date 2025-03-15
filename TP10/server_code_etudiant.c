@@ -5,6 +5,17 @@
 #include "server_code_etudiant.h"
 
 client_t *clients[MAX_CLIENTS];
+struct linked_list* ll;
+
+struct node {
+  client_t* client;
+  struct node* next;
+};
+
+struct linked_list {
+  int length;
+  struct node* root;
+};
 
 /* Strip CRLF */
 void strip_newline(char *s) {
@@ -38,18 +49,45 @@ client_t *get_client_from_name(char* name) {
 }
 
 void server_init() {
-  memset(clients, 0, sizeof(client_t*)*MAX_CLIENTS);
+  // new init
+  ll = malloc(sizeof(struct linked_list));
+  ll->length = 0;
+  ll->root = NULL;
+
+  // old init
+  // memset(clients, 0, sizeof(client_t*)*MAX_CLIENTS);
 }
 
 /* Add client to queue */
 void queue_add(client_t *cl){
-  int i;
-  for(i=0;i<MAX_CLIENTS;i++){
-    if(!clients[i]){
-      clients[i] = cl;
-      return;
+  if(ll->root){
+    struct node* cur = ll->root;
+    while(cur->next){
+      cur = cur->next;
     }
+    cur->next = new_node(cl);
+  }else{
+    ll->root = new_node(cl);
   }
+}
+
+struct node* new_node(client_t* cl){
+  struct node* new_node = malloc(sizeof(struct node));
+  new_node->client = cl;
+  new_node->next = NULL;
+  return new_node;
+}
+
+void free_clients_list(){
+  if(ll->root) free_node(ll->root);
+  free(ll);
+}
+
+void free_node(struct node* n){
+  if(n->next){
+    free_node(n->next);
+  }
+  free(n);
 }
 
 /* Delete client from queue */
@@ -94,7 +132,15 @@ void say_hello(client_t *cli) {
 }
 
 void process_cmd_me(client_t*client, char*param){
-
+  // param: /me something ...
+  char buff_out[1024]; 
+  if(param){
+    sprintf(buff_out, "* %s %s\n", client->name, param);
+    send_message_all(buff_out);
+  }else{
+    sprintf(buff_out, "* %s doesn't feel anything anymore\n", client->name);
+    send_message_all(buff_out);
+  }
 }
 
 void process_cmd_msg(client_t*client,
@@ -158,6 +204,7 @@ void handle_incoming_cmd(client_t *cli) {
     char *command;
     command = strsep(&cmd_line," ");
     if(!strcmp(command, "/quit")){
+      free_clients_list();
       return;
     } else if(!strcmp(command, "/ping")) {
       process_cmd_ping(cli, cmd_line);
