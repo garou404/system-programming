@@ -4,7 +4,7 @@
 #include <signal.h>
 #include "server_code_etudiant.h"
 
-client_t *clients[MAX_CLIENTS];
+// client_t *clients[MAX_CLIENTS];
 struct linked_list* ll;
 
 struct node {
@@ -28,27 +28,70 @@ void strip_newline(char *s) {
 }
 
 client_t *get_client_from_fd(int fd) {
-  int i;
-  for(i=0; i<MAX_CLIENTS; i++) {
-    if(clients[i] && clients[i]->fd == fd)
-      return clients[i];
+  printf("get_client_from_fd(int fd)---------------------------\n");
+  if(ll->root){
+    if(ll->root->client->fd == fd){
+      return ll->root->client;
+    }else{
+      struct node* cur = ll->root;
+      while(cur->next->client != NULL){
+        if(cur->next->client->fd == fd){
+          return cur->next->client;
+        }
+        cur = cur->next;
+      }
+      printf("Could not find the client with this fd %d\n", fd);
+      return 0;
+    }
+  }else{
+    printf("cannot find client, client list is empty\n");
+    return NULL;
   }
-  return NULL;
+
+
+  // old get_client_from_fd
+  // int i;
+  // for(i=0; i<MAX_CLIENTS; i++) {
+  //   if(clients[i] && clients[i]->fd == fd)
+  //     return clients[i];
+  // }
+  // return NULL;
 }
 
 client_t *get_client_from_name(char* name) {
-  int i;
-  for(i=0; i<MAX_CLIENTS; i++) {
-    if(clients[i]) {
-      if(strcmp(clients[i]->name, name) == 0) {
-	return clients[i];
+  printf("get_client_from_fd(int fd)---------------------------\n");
+
+  if(ll->root){
+    if(ll->root->client->name == name){
+      return ll->root->client;
+    }else{
+      struct node* cur = ll->root;
+      while(cur->next->client->name != name){
+        cur = cur->next;
       }
+      return cur->next->client;
     }
+  }else{
+    printf("cannot find client, client list is empty\n");
+    return NULL;
   }
-  return NULL;
+
+
+  // old get_client_from_name
+  // int i;
+  // for(i=0; i<MAX_CLIENTS; i++) {
+  //   if(clients[i]) {
+  //     if(strcmp(clients[i]->name, name) == 0) {
+	// return clients[i];
+  //     }
+  //   }
+  // }
+  // return NULL;
 }
 
 void server_init() {
+  printf("server_init()---------------------------\n");
+
   // new init
   ll = malloc(sizeof(struct linked_list));
   ll->length = 0;
@@ -60,6 +103,7 @@ void server_init() {
 
 /* Add client to queue */
 void queue_add(client_t *cl){
+  printf("queue_add(client_t *cl)-------------------\n");
   if(ll->root){
     struct node* cur = ll->root;
     while(cur->next){
@@ -69,9 +113,11 @@ void queue_add(client_t *cl){
   }else{
     ll->root = new_node(cl);
   }
+  ll->length++;
 }
 
 struct node* new_node(client_t* cl){
+  printf("new_node(client_t cli)\n");
   struct node* new_node = malloc(sizeof(struct node));
   new_node->client = cl;
   new_node->next = NULL;
@@ -92,15 +138,39 @@ void free_node(struct node* n){
 
 /* Delete client from queue */
 void queue_delete(client_t *client){
-  int i;
-  for(i=0;i<MAX_CLIENTS;i++){
-    if(clients[i]){
-      if(clients[i]->uid == client->uid){
-	clients[i] = NULL;
-	return;
+  printf("queue_delete(client_t *client)\n");
+  if(ll->root){
+    if(ll->root->client->uid == client->uid){
+      struct node* del = ll->root;
+      ll->root = ll->root->next;
+      free(del);
+      return;
+    }else{
+      struct node* cur = ll->root;
+      while(cur->next->client->uid != client->uid){
+        cur = cur->next;
       }
+      struct node* del = cur->next;
+      cur->next = cur->next->next;
+      free(del);
+      return;
     }
+  }else{
+    printf("cannot delete client, client list is empty\n");
+    return;
   }
+  
+
+  // old queue delete
+  // int i;
+  // for(i=0;i<MAX_CLIENTS;i++){
+  //   if(clients[i]){
+  //     if(clients[i]->uid == client->uid){
+	// clients[i] = NULL;
+	// return;
+  //     }
+  //   }
+  // }
 }
 
 /* Send a message to a client */
@@ -110,12 +180,23 @@ void send_message(char *s, client_t *client){
 
 /* Send message to all clients */
 void send_message_all(char *s){
-  int i;
-  for(i=0;i<MAX_CLIENTS;i++){
-    if(clients[i]){
-      send_message(s, clients[i]);
+  printf("send message(char* s)\n");
+  if(ll->root){
+    printf("if(ll->root)\n");
+    struct node*cur = ll->root;
+    while(cur != NULL){
+      send_message(s, cur->client);
+      cur = cur->next;
     }
   }
+
+  // old send_message_all
+  // int i;
+  // for(i=0;i<MAX_CLIENTS;i++){
+  //   if(clients[i]){
+  //     send_message(s, clients[i]);
+  //   }
+  // }
 }
 
 void assign_default_name(client_t* cli) {
@@ -124,6 +205,7 @@ void assign_default_name(client_t* cli) {
 
 /* this function is called when a client connects to the server */
 void say_hello(client_t *cli) {
+  printf("SAY HELLO;\n");
   char buff_out[1024];
   /* choose a default name */
   assign_default_name(cli);

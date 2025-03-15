@@ -48,4 +48,15 @@ void say_hello(client_t *cli);
 /* process an incoming message from a client */
 void handle_incoming_cmd(client_t *cli);
 
+
+/* create a new node */
+struct node* new_node(client_t* cl);
+
+/* free the linked list */
+void free_clients_list();
+
+/* free the nodes from the linked list recursively */
+void free_node(struct node* n);
+
+
 #endif	/* SERVER_CODE_ETUDIANT_H */
