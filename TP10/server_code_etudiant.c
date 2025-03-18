@@ -3,6 +3,7 @@
 #include <string.h>
 #include <signal.h>
 #include "server_code_etudiant.h"
+#include <time.h>
 
 // client_t *clients[MAX_CLIENTS];
 struct linked_list* ll;
@@ -28,7 +29,7 @@ void strip_newline(char *s) {
 }
 
 client_t *get_client_from_fd(int fd) {
-  printf("get_client_from_fd(int fd)---------------------------\n");
+  // printf("get_client_from_fd(int fd)---------------------------\n");
   if(ll->root){
     if(ll->root->client->fd == fd){
       return ll->root->client;
@@ -41,7 +42,7 @@ client_t *get_client_from_fd(int fd) {
         cur = cur->next;
       }
       printf("Could not find the client with this fd %d\n", fd);
-      return 0;
+      return NULL;
     }
   }else{
     printf("cannot find client, client list is empty\n");
@@ -59,7 +60,7 @@ client_t *get_client_from_fd(int fd) {
 }
 
 client_t *get_client_from_name(char* name) {
-  printf("get_client_from_name(char* name)---------------------------\n");
+  // printf("get_client_from_name(char* name)---------------------------\n");
 
   if(ll->root){
     if(ll->root->client->name == name){
@@ -72,9 +73,11 @@ client_t *get_client_from_name(char* name) {
         }
         cur = cur->next;
       }
+      // printf("Could not find the client with this name %s\n", name);
+      return NULL;
     }
   }else{
-    printf("cannot find client, client list is empty\n");
+    // printf("cannot find client, client list is empty\n");
     return NULL;
   }
 
@@ -92,7 +95,7 @@ client_t *get_client_from_name(char* name) {
 }
 
 void server_init() {
-  printf("server_init()---------------------------\n");
+  // printf("server_init()---------------------------\n");
 
   // new init
   ll = malloc(sizeof(struct linked_list));
@@ -105,7 +108,7 @@ void server_init() {
 
 /* Add client to queue */
 void queue_add(client_t *cl){
-  printf("queue_add(client_t *cl)-------------------\n");
+  // printf("queue_add(client_t *cl)-------------------\n");
   if(ll->root){
     struct node* cur = ll->root;
     while(cur->next){
@@ -119,7 +122,7 @@ void queue_add(client_t *cl){
 }
 
 struct node* new_node(client_t* cl){
-  printf("new_node(client_t cli)\n");
+  // printf("new_node(client_t cli)\n");
   struct node* new_node = malloc(sizeof(struct node));
   new_node->client = cl;
   new_node->next = NULL;
@@ -140,7 +143,7 @@ void free_node(struct node* n){
 
 /* Delete client from queue */
 void queue_delete(client_t *client){
-  printf("queue_delete(client_t *client)\n");
+  // printf("queue_delete(client_t *client)\n");
   if(ll->root){
     if(ll->root->client->uid == client->uid){
       struct node* del = ll->root;
@@ -182,7 +185,7 @@ void send_message(char *s, client_t *client){
 
 /* Send message to all clients */
 void send_message_all(char *s){
-  printf("send message(char* s)\n");
+  // printf("send message(char* s)\n");
   if(ll->root){
     struct node*cur = ll->root;
     while(cur != NULL){
@@ -201,12 +204,30 @@ void send_message_all(char *s){
 }
 
 void assign_default_name(client_t* cli) {
-  sprintf(cli->name, "Anonymous_%d", cli->uid);
+  FILE* f = fopen("default_names.txt", "r");
+  fseek(f, 0, SEEK_END); 
+  long file_size = ftell(f);
+  if(f){
+    srand(time(NULL));
+    char name[32];
+    do
+    {
+      int offset = rand() % file_size/32;
+      fseek(f, offset*32, SEEK_SET); // move the cursor to random location in file
+      fgets(name, 32, f);
+    } while (get_client_from_name(name));
+    
+    sprintf(cli->name, "%s", name);
+  }else{
+    printf("Could not open the file default_names.txt\n");
+    sprintf(cli->name, "Anonymous_%d", cli->uid);
+  }
+  // int line = rand() % ;
 }
 
 /* this function is called when a client connects to the server */
 void say_hello(client_t *cli) {
-  printf("SAY HELLO;\n");
+  // printf("SAY HELLO;\n");
   char buff_out[1024];
   /* choose a default name */
   assign_default_name(cli);
