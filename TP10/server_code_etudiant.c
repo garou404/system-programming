@@ -34,7 +34,7 @@ client_t *get_client_from_fd(int fd) {
       return ll->root->client;
     }else{
       struct node* cur = ll->root;
-      while(cur->next->client != NULL){
+      while(cur->next != NULL){
         if(cur->next->client->fd == fd){
           return cur->next->client;
         }
@@ -59,17 +59,19 @@ client_t *get_client_from_fd(int fd) {
 }
 
 client_t *get_client_from_name(char* name) {
-  printf("get_client_from_fd(int fd)---------------------------\n");
+  printf("get_client_from_name(char* name)---------------------------\n");
 
   if(ll->root){
     if(ll->root->client->name == name){
       return ll->root->client;
     }else{
       struct node* cur = ll->root;
-      while(cur->next->client->name != name){
+      while(cur->next != NULL){
+        if(cur->next->client->name == name){
+          return cur->next->client;
+        }
         cur = cur->next;
       }
-      return cur->next->client;
     }
   }else{
     printf("cannot find client, client list is empty\n");
@@ -182,7 +184,6 @@ void send_message(char *s, client_t *client){
 void send_message_all(char *s){
   printf("send message(char* s)\n");
   if(ll->root){
-    printf("if(ll->root)\n");
     struct node*cur = ll->root;
     while(cur != NULL){
       send_message(s, cur->client);
